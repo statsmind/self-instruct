@@ -12,6 +12,8 @@ def make_requests(
         engine, prompts, max_tokens, temperature, top_p, 
         frequency_penalty, presence_penalty, stop_sequences, logprobs, n, best_of, retries=3, api_key=None, organization=None
     ):
+    print(prompts)
+
     response = None
     target_length = max_tokens
     if api_key is not None:
@@ -24,6 +26,7 @@ def make_requests(
         try:
             response = openai.Completion.create(
                 engine=engine,
+                model=engine,
                 prompt=prompts,
                 max_tokens=target_length,
                 temperature=temperature,

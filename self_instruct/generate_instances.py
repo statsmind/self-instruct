@@ -1,6 +1,8 @@
 import os
 import json
 import random
+
+import openai
 import tqdm
 import re
 import argparse
@@ -18,7 +20,8 @@ def parse_args():
     parser.add_argument(
         "--batch_dir",
         type=str,
-        required=True,
+        required=False,
+        default="data/gpt3_generations/",
         help="The directory where the batch is stored.",
     )
     parser.add_argument(
@@ -78,6 +81,11 @@ def parse_args():
 
 
 if __name__ == '__main__':
+    os.environ["OPENAI_API_KEY"] = "EMPTY"
+    os.environ["OPENAI_API_BASE"] = "http://192.168.77.11:8000/v1"
+    openai.api_key = os.environ["OPENAI_API_KEY"]
+    openai.api_base = os.environ["OPENAI_API_BASE"]
+
     args = parse_args()
 
     with open(os.path.join(args.batch_dir, args.input_file)) as fin:
@@ -117,7 +125,7 @@ if __name__ == '__main__':
         print(f"Loaded {len(existing_requests)} existing requests")
 
     progress_bar = tqdm.tqdm(total=len(tasks))
-    with open(output_path, "w") as fout:
+    with open(output_path, "w", encoding="utf-8") as fout:
         for batch_idx in range(0, len(tasks), args.request_batch_size):
             batch = tasks[batch_idx: batch_idx + args.request_batch_size]
             if all(d["instruction"] in existing_requests for d in batch):

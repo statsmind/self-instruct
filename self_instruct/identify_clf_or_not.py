@@ -1,6 +1,8 @@
 import os
 import json
 import random
+
+import openai
 import tqdm
 import re
 import argparse
@@ -23,7 +25,8 @@ def parse_args():
     parser.add_argument(
         "--batch_dir",
         type=str,
-        required=True,
+        required=False,
+        default="data/gpt3_generations/",
         help="The directory where the batch is stored.",
     )
     parser.add_argument(
@@ -63,6 +66,11 @@ def parse_args():
 
 
 if __name__ == '__main__':
+    os.environ["OPENAI_API_KEY"] = "EMPTY"
+    os.environ["OPENAI_API_BASE"] = "http://192.168.77.11:8000/v1"
+    openai.api_key = os.environ["OPENAI_API_KEY"]
+    openai.api_base = os.environ["OPENAI_API_BASE"]
+
     args = parse_args()
 
     with open(os.path.join(args.batch_dir, "machine_generated_instructions.jsonl")) as fin:

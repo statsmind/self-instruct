@@ -3,6 +3,8 @@ import json
 import random
 import re
 import string
+
+import openai
 import tqdm
 import argparse
 import numpy as np
@@ -75,14 +77,14 @@ def parse_args():
     parser.add_argument(
         "--batch_dir",
         type=str,
-        required=True,
+        required=False,
         default="data/gpt3_generations/",
         help="The directory where the batch is stored.",
     )
     parser.add_argument(
         "--seed_tasks_path",
         type=str,
-        required=True,
+        required=False,
         default="data/seed_tasks.jsonl",
         help="The path to the human written data.",
     )
@@ -100,7 +102,8 @@ def parse_args():
     parser.add_argument(
         "--engine",
         type=str,
-        default="davinci",
+        default="vicuna",
+        # default="davinci",
         help="The engine to use."
     )
     parser.add_argument(
@@ -129,6 +132,11 @@ def parse_args():
 
 
 if __name__ == "__main__":
+    os.environ["OPENAI_API_KEY"] = "EMPTY"
+    os.environ["OPENAI_API_BASE"] = "http://192.168.77.11:8000/v1"
+    openai.api_key = os.environ["OPENAI_API_KEY"]
+    openai.api_base = os.environ["OPENAI_API_BASE"]
+
     args = parse_args()
     seed_tasks = [json.loads(l) for l in open(args.seed_tasks_path, "r")]
     if args.use_clf_seed_tasks_only:

@@ -4,6 +4,8 @@ import argparse
 import glob
 import re
 import random
+
+import openai
 import tqdm
 import pandas as pd
 
@@ -16,14 +18,14 @@ def parse_args():
     parser.add_argument(
         "--instance_files",
         nargs="+",
-        default=["data/batch_221203/machine_generated_instances.jsonl"],
+        default=["data/gpt3_generations/machine_generated_instances.jsonl"],
         type=str,
         help="The input files that contain the machine generated instances."
     )
     parser.add_argument(
         "--classification_type_files",
         nargs="+",
-        default=["data/batch_221203/is_clf_or_not_davinci_template_1.jsonl"],
+        default=["data/gpt3_generations/is_clf_or_not_davinci_template_1.jsonl"],
     )
     parser.add_argument(
         "--output_dir",
@@ -44,7 +46,6 @@ def parse_args():
     parser.add_argument(
         "--seed_tasks_path",
         type=str,
-        required=True,
         default="data/seed_tasks.jsonl",
         help="The path to the seed data.",
     )
@@ -192,6 +193,11 @@ def parse_instances_for_classification_task(raw_text, instruction, response_meta
 
 
 if __name__ == "__main__":
+    os.environ["OPENAI_API_KEY"] = "EMPTY"
+    os.environ["OPENAI_API_BASE"] = "http://192.168.77.11:8000/v1"
+    openai.api_key = os.environ["OPENAI_API_KEY"]
+    openai.api_base = os.environ["OPENAI_API_BASE"]
+
     args = parse_args()
 
     training_instances = []
