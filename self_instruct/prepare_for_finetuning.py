@@ -193,25 +193,20 @@ def parse_instances_for_classification_task(raw_text, instruction, response_meta
 
 
 if __name__ == "__main__":
-    os.environ["OPENAI_API_KEY"] = "EMPTY"
-    os.environ["OPENAI_API_BASE"] = "http://192.168.77.11:8000/v1"
-    openai.api_key = os.environ["OPENAI_API_KEY"]
-    openai.api_base = os.environ["OPENAI_API_BASE"]
-
     args = parse_args()
 
     training_instances = []
     
     generated_tasks = []
     for instance_file in args.instance_files:
-        with open(instance_file) as fin:
+        with open(instance_file, encoding='utf-8') as fin:
             for line in fin:
                 generated_tasks.append(json.loads(line))
     print(f"Loaded {len(generated_tasks)} raw generated tasks")
 
     task_clf_types = {}
     for file in args.classification_type_files:
-        with open(file) as fin:
+        with open(file, encoding='utf-8') as fin:
             for line in fin:
                 data = json.loads(line)
                 task_clf_types[data["instruction"]] = data["is_classification"].strip() in ["Yes", "yes", "YES"]
@@ -237,13 +232,13 @@ if __name__ == "__main__":
 
 
     os.makedirs(args.output_dir, exist_ok=True)
-    with open(os.path.join(args.output_dir, "all_generated_instances.jsonl"), "w") as fout:
+    with open(os.path.join(args.output_dir, "all_generated_instances.jsonl"), "w", encoding='utf-8') as fout:
         for instance in training_instances:
             fout.write(json.dumps({
                 "instruction": instance[0],
                 "input": instance[1],
                 "output": instance[2],
-            }) + "\n")
+            }, ensure_ascii=False) + "\n")
     print(f"Saved {len(training_instances)} instances")
     unique_instructions = set([it[0] for it in training_instances])
     print(f"Unique instructions: {len(unique_instructions)}")
@@ -257,13 +252,13 @@ if __name__ == "__main__":
         sampled_instructions = random.sample(unique_instructions, args.num_instructions)
         training_instances = [it for it in training_instances if it[0] in sampled_instructions]
         print(f"Only using {len(training_instances)} instances for these sampled instructions.")
-        with open(os.path.join(args.output_dir, f"sampled_generated_instances_{args.num_instructions}.jsonl"), "w") as fout:
+        with open(os.path.join(args.output_dir, f"sampled_generated_instances_{args.num_instructions}.jsonl"), "w", encoding='utf-8') as fout:
             for instance in training_instances:
                 fout.write(json.dumps({
                     "instruction": instance[0],
                     "input": instance[1],
                     "output": instance[2],
-                }) + "\n")
+                }, ensure_ascii=False) + "\n")
 
     if args.include_seed_tasks:
         seed_tasks = [json.loads(l) for l in open(args.seed_tasks_path, "r")]
@@ -302,9 +297,9 @@ if __name__ == "__main__":
 
     # shuffle
     random.shuffle(gpt3_instances)
-    with open(os.path.join(args.output_dir, f"gpt3_finetuning_data_{len(gpt3_instances)}.jsonl"), "w") as fout:
+    with open(os.path.join(args.output_dir, f"gpt3_finetuning_data_{len(gpt3_instances)}.jsonl"), "w", encoding='utf-8') as fout:
         for instance in gpt3_instances:
             fout.write(json.dumps({
                 "prompt": instance["prompt"],
                 "completion": instance["completion"],
-            }) + "\n")
+            }, ensure_ascii=False) + "\n")

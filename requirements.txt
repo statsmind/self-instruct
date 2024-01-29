@@ -2,6 +2,7 @@
 ###### Core dependencies #######
 ################################
 rouge-score
+rouge-chinese
 tqdm
 numpy
 openai==0.24.0

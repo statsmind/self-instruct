@@ -66,14 +66,9 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    os.environ["OPENAI_API_KEY"] = "EMPTY"
-    os.environ["OPENAI_API_BASE"] = "http://192.168.77.11:8000/v1"
-    openai.api_key = os.environ["OPENAI_API_KEY"]
-    openai.api_base = os.environ["OPENAI_API_BASE"]
-
     args = parse_args()
 
-    with open(os.path.join(args.batch_dir, "machine_generated_instructions.jsonl")) as fin:
+    with open(os.path.join(args.batch_dir, "machine_generated_instructions.jsonl"), 'r', encoding='utf8') as fin:
         lines = fin.readlines()
         if args.num_instructions is not None:
             lines = lines[:args.num_instructions]
@@ -81,7 +76,7 @@ if __name__ == '__main__':
     output_path = os.path.join(args.batch_dir, f"is_clf_or_not_{args.engine}_{args.template}.jsonl")
     existing_requests = {}
     if os.path.exists(output_path):
-        with open(output_path) as fin:
+        with open(output_path, 'r', encoding='utf8') as fin:
             for line in tqdm.tqdm(fin):
                 try:
                     data = json.loads(line)
@@ -91,7 +86,7 @@ if __name__ == '__main__':
         print(f"Loaded {len(existing_requests)} existing requests")
 
     progress_bar = tqdm.tqdm(total=len(lines))
-    with open(output_path, "w") as fout:
+    with open(output_path, "w", encoding='utf8') as fout:
         for batch_idx in range(0, len(lines), args.request_batch_size):
             batch = [json.loads(line) for line in lines[batch_idx: batch_idx + args.request_batch_size]]
             if all(d["instruction"] in existing_requests for d in batch):

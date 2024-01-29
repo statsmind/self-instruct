@@ -83,7 +83,7 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
 
-    with open(os.path.join(args.batch_dir, args.input_file)) as fin:
+    with open(os.path.join(args.batch_dir, args.input_file), 'r', encoding='utf8') as fin:
         lines = fin.readlines()
         if args.num_instructions is not None:
             lines = lines[:args.num_instructions]
@@ -96,21 +96,25 @@ if __name__ == '__main__':
             tasks.append(data)
 
     task_clf_types = {}
-    with open(os.path.join(args.batch_dir, "is_clf_or_not_davinci_template_1.jsonl")) as fin:
+    with open(os.path.join(args.batch_dir, "is_clf_or_not_davinci_template_1.jsonl"), 'r', encoding='utf8') as fin:
         for line in fin:
             data = json.loads(line)
-            task_clf_types[data["instruction"]] = data["is_classification"].strip() in ["Yes", "yes", "YES"]
+
+            if args.classification_tasks_only:
+                task_clf_types[data["instruction"]] = data["is_classification"].strip() in ["Yes", "yes", "YES"]
+            else:
+                task_clf_types[data["instruction"]] = False
 
     if args.classification_tasks_only:
         tasks = [task for task in tasks if task_clf_types[task["instruction"]]]
-    
+
     if args.generation_tasks_only:
         tasks = [task for task in tasks if not task_clf_types[task["instruction"]]]
 
     output_path = os.path.join(args.batch_dir, args.output_file)
     existing_requests = {}
     if os.path.exists(output_path):
-        with open(output_path) as fin:
+        with open(output_path, 'r', encoding='utf8') as fin:
             for line in tqdm.tqdm(fin):
                 try:
                     data = json.loads(line)
