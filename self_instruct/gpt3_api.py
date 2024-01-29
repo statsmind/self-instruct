@@ -12,6 +12,11 @@ def make_requests(
         engine, prompts, max_tokens, temperature, top_p, 
         frequency_penalty, presence_penalty, stop_sequences, logprobs, n, best_of, retries=3, api_key=None, organization=None
     ):
+    os.environ["OPENAI_API_KEY"] = "EMPTY"
+    os.environ["OPENAI_API_BASE"] = "http://192.168.77.11:8000/v1"
+    openai.api_key = os.environ["OPENAI_API_KEY"]
+    openai.api_base = os.environ["OPENAI_API_BASE"]
+
     print(prompts)
 
     response = None

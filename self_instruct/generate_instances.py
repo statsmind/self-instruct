@@ -81,11 +81,6 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    os.environ["OPENAI_API_KEY"] = "EMPTY"
-    os.environ["OPENAI_API_BASE"] = "http://192.168.77.11:8000/v1"
-    openai.api_key = os.environ["OPENAI_API_KEY"]
-    openai.api_base = os.environ["OPENAI_API_BASE"]
-
     args = parse_args()
 
     with open(os.path.join(args.batch_dir, args.input_file)) as fin:
